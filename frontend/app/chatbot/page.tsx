@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Suspense } from "react";
 import { Send, Bot, User, Loader2, Trash2, AlertTriangle, ArrowLeft, Plus, MessageSquare, Clock, Edit2, Check, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -30,7 +30,7 @@ interface RequestContext {
   summary: string | null;
 }
 
-export default function ChatbotPage() {
+export function ChatbotContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, token, loading: authLoading } = useAuth();
@@ -619,5 +619,20 @@ export default function ChatbotPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function ChatbotPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4" />
+          <p className="text-white/60">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ChatbotContent />
+    </Suspense>
   );
 }
