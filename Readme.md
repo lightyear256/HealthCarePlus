@@ -1,44 +1,53 @@
-# Mini Healthcare Support Web App
+# Mini Healthcare Support Web Application
 
-This project is a concept-level healthcare support web application. 
-The objective is to demonstrate clarity of design, backend–frontend integration, and an AI-powered support idea for NGOs.
+## Overview
 
----
+The Mini Healthcare Support Web Application is a full-stack personal project designed to explore how AI-powered automation can assist healthcare support systems, especially in NGO environments.
 
-## Project Overview
+This project demonstrates structured backend architecture, secure authentication, database integration, and meaningful AI integration using a modern full-stack tech stack.
 
-The application allows users (Patients and Volunteers) to register, log in, and interact through a simple healthcare support system.  
-An AI chatbot powered by Google Gemini (gemini-flash) is integrated to provide instant guidance and health-related information.
-
-The project focuses on usability, structure, and AI integration rather than production-level completeness.
+The focus is on clean design, modular code organization, and practical AI usage rather than production-level deployment.
 
 ---
 
-## NGO Use Case
+## Motivation
 
-Healthcare NGOs often face challenges such as:
-- Limited number of volunteers
-- High volume of patient queries
-- Delayed responses for basic health-related questions
+Healthcare NGOs often face operational challenges such as:
 
-This application helps NGOs by:
-- Providing instant responses to common patient questions using AI
-- Reducing repetitive workload for volunteers
-- Improving response time and accessibility
-- Allowing volunteers to focus on more critical cases
+- Limited volunteer availability  
+- High volume of repetitive patient queries  
+- Delays in responding to basic health-related concerns  
+
+This project explores how an AI-powered first-level support system can reduce repetitive workload and improve response time for common healthcare-related questions.
 
 ---
 
-## AI and Automation Idea
+## Proposed Solution
 
-### AI Chatbot using Gemini Flash
+The application provides a structured platform where:
 
-- Implemented using Google Generative AI (Gemini `gemini-flash` model)
-- Designed to answer general healthcare-related questions
-- Provides contextual and user-friendly responses
-- Acts as a first-level support assistant
+- Patients can register, log in, and ask healthcare-related questions  
+- Volunteers can access the system based on role-based permissions  
+- An AI chatbot provides instant guidance for general healthcare queries  
 
-The chatbot does not replace medical professionals and does not provide medical diagnoses or prescriptions.
+The chatbot acts as a first-level support assistant, helping reduce manual workload and improving accessibility.
+
+This system does not provide medical diagnoses or prescriptions and is intended only for informational support.
+
+---
+
+## AI Integration
+
+The chatbot is powered by Google Generative AI using the Gemini Flash model.
+
+Key aspects of the AI integration include:
+
+- Context-aware response generation  
+- Structured prompt handling  
+- Backend API integration  
+- Secure environment variable management for API keys  
+
+This implementation demonstrates practical AI API integration and structured response handling within a backend service.
 
 ---
 
@@ -65,31 +74,44 @@ The chatbot does not replace medical professionals and does not provide medical 
 
 ---
 
-## Features Implemented
+## Features
 
-- User registration and login
-- Role-based access (Patient and Volunteer)
-- JWT authentication
-- Secure REST APIs
-- AI chatbot integration for healthcare support
-- Database integration using Prisma
+- User registration and login  
+- JWT-based authentication  
+- Role-based access control (Patient and Volunteer)  
+- Secure REST API architecture  
+- Database management using Prisma  
+- AI-powered healthcare chatbot  
+- Modular backend structure  
 
 ---
 
-## Notes
+## Key Learnings
 
-- This project is developed for learning and evaluation purposes
-- It is a concept-level implementation
-- Not intended for real-world medical use
+While building this project, I strengthened my understanding of:
+
+- Full-stack application architecture  
+- Secure authentication workflows  
+- Database modeling using Prisma  
+- REST API design  
+- AI service integration  
+- Managing frontend–backend communication  
+
+This project reflects my ability to design and implement a structured full-stack application with AI integration.
+
+---
+
+## Project Scope
+
+- Personal full-stack development project  
+- Concept-level implementation  
+- Intended for educational and demonstration purposes  
+- Not intended for real-world medical use  
 
 ---
 
 ## Conclusion
 
-This project demonstrates how AI-powered automation can support healthcare NGOs by improving accessibility, reducing manual workload, and providing scalable assistance to patients.
+This project demonstrates how AI-powered automation can support healthcare systems by improving accessibility, reducing repetitive workload, and providing scalable first-level assistance.
 
-The focus is on clean architecture, clear logic, and meaningful AI integration.
-
----
-
-Thank you for reviewing this project.
+It highlights clean architecture, secure backend design, and practical AI integration in a modern web application.
