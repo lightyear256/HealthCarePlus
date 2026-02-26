@@ -1,6 +1,6 @@
 # Mini Healthcare Support Web App
 
-This project is a concept-level healthcare support web application built as part of an internship assignment.  
+This project is a concept-level healthcare support web application. 
 The objective is to demonstrate clarity of design, backend–frontend integration, and an AI-powered support idea for NGOs.
 
 ---

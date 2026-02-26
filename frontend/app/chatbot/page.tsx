@@ -1,6 +1,20 @@
 "use client";
 import React, { useState, useRef, useEffect, Suspense } from "react";
-import { Send, Bot, User, Loader2, Trash2, AlertTriangle, ArrowLeft, Plus, MessageSquare, Clock, Edit2, Check, X } from "lucide-react";
+import {
+  Send,
+  Bot,
+  User,
+  Loader2,
+  Trash2,
+  AlertTriangle,
+  ArrowLeft,
+  Plus,
+  MessageSquare,
+  Clock,
+  Edit2,
+  Check,
+  X,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../authContext";
@@ -34,8 +48,10 @@ export function ChatbotContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, token, loading: authLoading } = useAuth();
-  
-  const [requestContext, setRequestContext] = useState<RequestContext | null>(null);
+
+  const [requestContext, setRequestContext] = useState<RequestContext | null>(
+    null,
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +62,7 @@ export function ChatbotContent() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -58,13 +74,19 @@ export function ChatbotContent() {
   }, [messages]);
 
   useEffect(() => {
-    const contextParam = searchParams.get('context');
+    // default sidebar visibility based on viewport width
+    if (typeof window !== "undefined") {
+      setShowSidebar(window.innerWidth >= 768);
+    }
+    const contextParam = searchParams.get("context");
     if (contextParam) {
       try {
-        const context: RequestContext = JSON.parse(decodeURIComponent(contextParam));
+        const context: RequestContext = JSON.parse(
+          decodeURIComponent(contextParam),
+        );
         setRequestContext(context);
       } catch (error) {
-        console.error('Failed to parse context:', error);
+        console.error("Failed to parse context:", error);
       }
     }
   }, [searchParams]);
@@ -93,7 +115,7 @@ export function ChatbotContent() {
         `${process.env.NEXT_PUBLIC_API_URL}/chatbot/history`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.success && response.data.sessions) {
@@ -111,16 +133,18 @@ export function ChatbotContent() {
         `${process.env.NEXT_PUBLIC_API_URL}/chatbot/history?sessionId=${sid}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.success && response.data.history) {
-        const loadedMessages: Message[] = response.data.history.map((msg: any) => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp),
-          isEmergency: msg.isEmergency,
-        }));
+        const loadedMessages: Message[] = response.data.history.map(
+          (msg: any) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+            isEmergency: msg.isEmergency,
+          }),
+        );
         setMessages(loadedMessages);
       }
     } catch (error) {
@@ -143,22 +167,19 @@ export function ChatbotContent() {
 
   const deleteSession = async (sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!confirm("Are you sure you want to delete this chat session?")) {
       return;
     }
 
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/history`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { sessionId: sid },
-        }
-      );
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/chatbot/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { sessionId: sid },
+      });
 
-      setChatSessions(prev => prev.filter(s => s.id !== sid));
-      
+      setChatSessions((prev) => prev.filter((s) => s.id !== sid));
+
       if (sid === sessionId) {
         startNewChat();
       }
@@ -176,7 +197,7 @@ export function ChatbotContent() {
 
   const saveSessionTitle = async (sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!editingTitle.trim()) {
       setEditingSessionId(null);
       return;
@@ -188,12 +209,12 @@ export function ChatbotContent() {
         { title: editingTitle },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
-      setChatSessions(prev => prev.map(s => 
-        s.id === sid ? { ...s, title: editingTitle } : s
-      ));
+      setChatSessions((prev) =>
+        prev.map((s) => (s.id === sid ? { ...s, title: editingTitle } : s)),
+      );
       setEditingSessionId(null);
     } catch (error) {
       console.error("Failed to update session title:", error);
@@ -235,7 +256,7 @@ export function ChatbotContent() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -282,7 +303,7 @@ export function ChatbotContent() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen w-full bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4" />
           <p className="text-white/60">Loading...</p>
@@ -292,7 +313,7 @@ export function ChatbotContent() {
   }
 
   return (
-    <div className="h-screen bg-black overflow-hidden relative flex">
+    <div className="h-screen bg-black overflow-hidden relative flex flex-col md:flex-row">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-linear-to-br from-black via-zinc-950 to-black" />
         {[...Array(50)].map((_, i) => (
@@ -312,7 +333,7 @@ export function ChatbotContent() {
       </div>
 
       {showSidebar && (
-        <div className="pt-15 relative z-10 w-80 border-r border-white/10 bg-zinc-950/80 backdrop-blur-2xl flex flex-col">
+        <div className="pt-15 relative z-10 w-full md:w-80 border-r md:border-r border-white/10 bg-zinc-950/80 backdrop-blur-2xl flex flex-col">
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-light tracking-widest text-white/90 uppercase">
@@ -334,7 +355,7 @@ export function ChatbotContent() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div className="flex-1 overflow-y-auto  [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-sm [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500 p-4 space-y-4">
             {chatSessions.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="w-8 h-8 text-white/20 mx-auto mb-3" />
@@ -355,7 +376,10 @@ export function ChatbotContent() {
                 >
                   <div className="flex items-start justify-between mb-2">
                     {editingSessionId === session.id ? (
-                      <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex items-center gap-2 flex-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <input
                           type="text"
                           value={editingTitle}
@@ -416,11 +440,11 @@ export function ChatbotContent() {
         </div>
       )}
 
-      <div className=" pt-15 relative z-10 flex-1 flex flex-col h-screen">
+      <div className=" pt-15 relative z-10 flex-1 flex flex-col h-full md:h-screen">
         <div className="border-b border-white/10 bg-zinc-950/80 backdrop-blur-2xl shrink-0">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 {!showSidebar && (
                   <button
                     onClick={() => setShowSidebar(true)}
@@ -444,7 +468,9 @@ export function ChatbotContent() {
                     AI Healthcare Assistant
                   </h1>
                   <p className="text-xs text-white/40 tracking-wider uppercase">
-                    {requestContext ? `Request: ${requestContext.title}` : 'Available 24/7'}
+                    {requestContext
+                      ? `Request: ${requestContext.title}`
+                      : "Available 24/7"}
                   </p>
                 </div>
               </div>
@@ -468,9 +494,12 @@ export function ChatbotContent() {
               <div className="flex items-start gap-3">
                 <Bot className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-blue-200 text-xs font-medium mb-1">CONTEXT LOADED</p>
+                  <p className="text-blue-200 text-xs font-medium mb-1">
+                    CONTEXT LOADED
+                  </p>
                   <p className="text-blue-100/70 text-xs">
-                    I have information about your request: "{requestContext.title}" (Status: {requestContext.status})
+                    I have information about your request: "
+                    {requestContext.title}" (Status: {requestContext.status})
                   </p>
                 </div>
               </div>
@@ -491,7 +520,7 @@ export function ChatbotContent() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-sm [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500 px-6 py-6">
           {loadingHistory ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -507,20 +536,24 @@ export function ChatbotContent() {
                   Start a conversation
                 </h2>
                 <p className="text-white/50 text-sm mb-6">
-                  Ask me anything about your health concerns, symptoms, or general wellness questions.
+                  Ask me anything about your health concerns, symptoms, or
+                  general wellness questions.
                 </p>
                 {requestContext && (
                   <div className="bg-blue-500/5 border border-blue-500/20 rounded-sm p-4 text-left">
-                    <p className="text-blue-400 text-xs font-medium mb-2">Request Context Available</p>
+                    <p className="text-blue-400 text-xs font-medium mb-2">
+                      Request Context Available
+                    </p>
                     <p className="text-white/70 text-sm">
-                      I have information about your request: "{requestContext.title}". Feel free to ask me about it!
+                      I have information about your request: "
+                      {requestContext.title}". Feel free to ask me about it!
                     </p>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-full md:max-w-4xl mx-auto space-y-6">
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -530,17 +563,20 @@ export function ChatbotContent() {
                 >
                   {message.role === "assistant" && (
                     <div className="shrink-0 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-white/60" strokeWidth={1.5} />
+                      <Bot
+                        className="w-5 h-5 text-white/60"
+                        strokeWidth={1.5}
+                      />
                     </div>
                   )}
 
                   <div
-                    className={`max-w-2xl ${
+                    className={`max-w-full sm:max-w-2xl ${
                       message.role === "user"
                         ? "bg-white/10 border-white/20"
                         : message.isEmergency
-                        ? "bg-red-500/10 border-red-500/20"
-                        : "bg-white/5 border-white/10"
+                          ? "bg-red-500/10 border-red-500/20"
+                          : "bg-white/5 border-white/10"
                     } border backdrop-blur-sm rounded-sm px-5 py-4`}
                   >
                     <p className="text-white/90 text-sm leading-relaxed font-light whitespace-pre-wrap">
@@ -556,7 +592,10 @@ export function ChatbotContent() {
 
                   {message.role === "user" && (
                     <div className="shrink-0 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-                      <User className="w-5 h-5 text-white/70" strokeWidth={1.5} />
+                      <User
+                        className="w-5 h-5 text-white/70"
+                        strokeWidth={1.5}
+                      />
                     </div>
                   )}
                 </div>
@@ -602,7 +641,8 @@ export function ChatbotContent() {
             </div>
 
             <p className="text-white/30 text-xs mt-3 text-center tracking-wider">
-              This AI assistant provides general health information. Always consult healthcare professionals for medical advice.
+              This AI assistant provides general health information. Always
+              consult healthcare professionals for medical advice.
             </p>
           </div>
         </div>
@@ -610,7 +650,8 @@ export function ChatbotContent() {
 
       <style jsx>{`
         @keyframes twinkle {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.2;
           }
           50% {
@@ -624,14 +665,16 @@ export function ChatbotContent() {
 
 export default function ChatbotPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4" />
-          <p className="text-white/60">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-full bg-black text-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4" />
+            <p className="text-white/60">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ChatbotContent />
     </Suspense>
   );

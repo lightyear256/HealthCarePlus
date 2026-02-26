@@ -58,20 +58,23 @@ export default function PatientDashboard() {
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  
+
   const [showChat, setShowChat] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null,
+  );
   const [selectedRequestTitle, setSelectedRequestTitle] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  
+
   const [showResolveConfirm, setShowResolveConfirm] = useState(false);
-  const [requestToResolve, setRequestToResolve] = useState<PatientRequest | null>(null);
+  const [requestToResolve, setRequestToResolve] =
+    useState<PatientRequest | null>(null);
   const [showResolveSuccess, setShowResolveSuccess] = useState(false);
   const [resolvedRequestTitle, setResolvedRequestTitle] = useState("");
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -82,48 +85,42 @@ export default function PatientDashboard() {
     scrollToBottom();
   }, [messages]);
 
-
-
-useEffect(() => {
-    const storedUser = sessionStorage.getItem('user');
-    const storedToken = sessionStorage.getItem('token');
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
     }
   }, []);
- useEffect(() => {
-  const storedUser = sessionStorage.getItem('user');
-  const storedToken = sessionStorage.getItem('token');
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
 
-  if (!storedUser || !storedToken) {
-    router.replace('/signin')
-    return;
-  }
-
-  try {
-    const userData = JSON.parse(storedUser);
-    if (userData.role !== 'PATIENT') {
-      router.replace('/signin')
+    if (!storedUser || !storedToken) {
+      router.replace("/signin");
       return;
     }
 
-    setUser(userData);
-    setToken(storedToken);
-  } catch {
-    router.replace('/signin')
-  }
-}, []);
-useEffect(() => {
-  if (!token) return;
+    try {
+      const userData = JSON.parse(storedUser);
+      if (userData.role !== "PATIENT") {
+        router.replace("/signin");
+        return;
+      }
 
-  fetchRequests();
-  fetchUnreadCount();
-}, [token]);
+      setUser(userData);
+      setToken(storedToken);
+    } catch {
+      router.replace("/signin");
+    }
+  }, []);
+  useEffect(() => {
+    if (!token) return;
 
-
-
-
+    fetchRequests();
+    fetchUnreadCount();
+  }, [token]);
 
   useEffect(() => {
     if (showChat && selectedRequestId) {
@@ -144,13 +141,13 @@ useEffect(() => {
       setLoading(false);
       return;
     }
-    
+
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/patient/my_requests`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setRequests(response.data.data || []);
     } catch (err) {
@@ -169,7 +166,7 @@ useEffect(() => {
         `${process.env.NEXT_PUBLIC_API_URL}/chat/${selectedRequestId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setMessages(response.data.data || []);
       fetchUnreadCount();
@@ -186,7 +183,7 @@ useEffect(() => {
         `${process.env.NEXT_PUBLIC_API_URL}/chat/unread/count`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setUnreadCount(response.data.data?.unreadCount || 0);
     } catch (err) {
@@ -210,9 +207,9 @@ useEffect(() => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
-      
+
       setNewMessage("");
       await fetchMessages();
     } catch (err: any) {
@@ -240,7 +237,7 @@ useEffect(() => {
   const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     if (!formData.title.trim() || !formData.description.trim()) {
       setError("Please fill in all fields");
       return;
@@ -262,14 +259,14 @@ useEffect(() => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
-      
+
       setShowModal(false);
       setFormData({ title: "", description: "" });
       fetchRequests();
     } catch (err: any) {
-      console.error('Request submission error:', err);
+      console.error("Request submission error:", err);
       setError(err.response?.data?.msg || "Failed to create request");
     } finally {
       setSubmitting(false);
@@ -278,16 +275,18 @@ useEffect(() => {
 
   const handleGoToChatbot = (request?: PatientRequest) => {
     if (request) {
-      const context = encodeURIComponent(JSON.stringify({
-        requestId: request.id,
-        title: request.title,
-        issue: request.issue,
-        status: request.status,
-        summary: request.autoSummary?.content || null,
-      }));
+      const context = encodeURIComponent(
+        JSON.stringify({
+          requestId: request.id,
+          title: request.title,
+          issue: request.issue,
+          status: request.status,
+          summary: request.autoSummary?.content || null,
+        }),
+      );
       router.push(`/chatbot?context=${context}`);
     } else {
-      router.push('/chatbot');
+      router.push("/chatbot");
     }
   };
 
@@ -320,22 +319,21 @@ useEffect(() => {
         { status: "RESOLVED" },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
-      
+
       setResolvedRequestTitle(requestToResolve.title);
-      
+
       setShowResolveConfirm(false);
       setRequestToResolve(null);
-      
+
       await fetchRequests();
-      
+
       setShowResolveSuccess(true);
-      
+
       setTimeout(() => {
         setShowResolveSuccess(false);
       }, 5000);
-      
     } catch (err) {
       console.error("Failed to resolve request:", err);
       alert("Failed to resolve request. Please try again.");
@@ -356,7 +354,7 @@ useEffect(() => {
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       fetchRequests();
     } catch (err) {
@@ -379,10 +377,8 @@ useEffect(() => {
     }
   };
 
-
-
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen w-full bg-black text-white">
       <div className="fixed inset-0 bg-linear-to-br from-black via-zinc-950 to-black">
         {[...Array(50)].map((_, i) => (
           <div
@@ -402,12 +398,15 @@ useEffect(() => {
 
       {showResolveSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
-          <div className="bg-green-500/10 border border-green-500/20 rounded-sm p-4 flex items-start gap-3 min-w-[320px] shadow-2xl backdrop-blur-xl">
+          <div className="bg-green-500/10 border border-green-500/20 rounded-sm p-4 flex items-start gap-3 min-w-[240px] max-w-sm shadow-2xl backdrop-blur-xl">
             <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="text-sm font-medium text-green-400 mb-1">Request Resolved</h4>
+              <h4 className="text-sm font-medium text-green-400 mb-1">
+                Request Resolved
+              </h4>
               <p className="text-xs text-white/70">
-                "{resolvedRequestTitle}" has been marked as resolved successfully.
+                "{resolvedRequestTitle}" has been marked as resolved
+                successfully.
               </p>
             </div>
             <button
@@ -420,11 +419,9 @@ useEffect(() => {
         </div>
       )}
 
-    
-
       <div className="pt-25 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl font-extralight tracking-wider text-white/95 mb-2">
+          <h1 className="text-3xl sm:text-4xl font-extralight tracking-wider text-white/95 mb-2">
             PATIENT DASHBOARD
           </h1>
           <div className="w-24 h-px bg-linear-to-r from-white/30 to-transparent mb-6" />
@@ -474,12 +471,12 @@ useEffect(() => {
                   key={request.id}
                   className="bg-zinc-950/50 backdrop-blur-xl border border-white/10 rounded p-6 hover:border-white/20 transition-all"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1 pr-4">
-                      <h3 className="text-lg font-light text-white/90 mb-2 tracking-wide">
+                  <div className="flex flex-col sm:flex-row items-start justify-between mb-4">
+                    <div className="flex-1 pr-0 sm:pr-4">
+                      <h3 className="text-lg font-light text-white/90 mb-2 tracking-wide break-words">
                         {request.title}
                       </h3>
-                      <p className="text-sm text-white/50 leading-relaxed mb-3">
+                      <p className="text-sm text-white/50 leading-relaxed mb-3 break-words">
                         {request.issue}
                       </p>
                       {request.autoSummary && (
@@ -500,12 +497,12 @@ useEffect(() => {
                       className={`flex items-center gap-2 px-3 py-1.5 rounded border text-xs tracking-wider ${getStatusColor(request.status)}`}
                     >
                       {getStatusIcon(request.status)}
-                      <span>{request.status.replace('_', ' ')}</span>
+                      <span>{request.status.replace("_", " ")}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                    <div className="flex items-center gap-4 text-xs text-white/40">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-white/5 gap-4">
+                    <div className="flex items-center gap-6 text-xs text-white/40">
                       <span className="tracking-wide">
                         {new Date(request.createdAt).toLocaleDateString()}
                       </span>
@@ -517,7 +514,7 @@ useEffect(() => {
                       )}
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-3">
                       <button
                         onClick={() => handleGoToChatbot(request)}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded hover:bg-blue-500/20 transition-all text-xs tracking-wider uppercase"
@@ -525,26 +522,29 @@ useEffect(() => {
                         <Bot className="w-4 h-4" />
                         ASK AI
                       </button>
-                      
-                      {request.status !== "RESOLVED" && request.status !== "CANCELLED" && (
-                        <button
-                          onClick={() => initiateResolve(request)}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded hover:bg-green-500/20 transition-all text-xs tracking-wider uppercase"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          RESOLVE
-                        </button>
-                      )}
 
-                      {request.volunteerId && request.status !== "RESOLVED" && request.status !== "CANCELLED" && (
-                        <button
-                          onClick={() => openChat(request)}
-                          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/70 rounded hover:bg-white/10 transition-all text-xs tracking-wider uppercase"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          CHAT WITH VOLUNTEER
-                        </button>
-                      )}
+                      {request.status !== "RESOLVED" &&
+                        request.status !== "CANCELLED" && (
+                          <button
+                            onClick={() => initiateResolve(request)}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded hover:bg-green-500/20 transition-all text-xs tracking-wider uppercase"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            RESOLVE
+                          </button>
+                        )}
+
+                      {request.volunteerId &&
+                        request.status !== "RESOLVED" &&
+                        request.status !== "CANCELLED" && (
+                          <button
+                            onClick={() => openChat(request)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/70 rounded hover:bg-white/10 transition-all text-xs tracking-wider uppercase"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            CHAT WITH VOLUNTEER
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -576,10 +576,9 @@ useEffect(() => {
                 {requestToResolve.title}
               </p>
               <p className="text-xs text-white/50">
-                {requestToResolve.issue.length > 100 
+                {requestToResolve.issue.length > 100
                   ? requestToResolve.issue.substring(0, 100) + "..."
-                  : requestToResolve.issue
-                }
+                  : requestToResolve.issue}
               </p>
             </div>
 
@@ -603,7 +602,7 @@ useEffect(() => {
 
       {showChat && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-sm w-full max-w-2xl h-150 flex flex-col">
+          <div className="bg-zinc-900 border border-white/10 rounded-sm w-full max-w-full sm:max-w-2xl h-auto sm:h-150 flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
@@ -612,7 +611,9 @@ useEffect(() => {
                     Chat with Volunteer
                   </h2>
                 </div>
-                <p className="text-xs text-white/50 ml-8">{selectedRequestTitle}</p>
+                <p className="text-xs text-white/50 ml-8">
+                  {selectedRequestTitle}
+                </p>
               </div>
               <button
                 onClick={closeChat}
@@ -638,7 +639,7 @@ useEffect(() => {
                       className={`flex ${message.senderRole === "PATIENT" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-sm p-4 ${
+                        className={`max-w-full sm:max-w-[70%] rounded-sm p-4 ${
                           message.senderRole === "PATIENT"
                             ? "bg-white/10 border border-white/20"
                             : "bg-blue-500/10 border border-blue-500/20"
@@ -657,8 +658,8 @@ useEffect(() => {
                         </p>
                         <span className="text-xs text-white/40">
                           {new Date(message.createdAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </span>
                       </div>
@@ -669,7 +670,10 @@ useEffect(() => {
               )}
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-6 border-t border-white/10">
+            <form
+              onSubmit={handleSendMessage}
+              className="p-6 border-t border-white/10"
+            >
               <div className="flex gap-3">
                 <input
                   type="text"

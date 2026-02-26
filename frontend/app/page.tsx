@@ -3,7 +3,7 @@ import { Stethoscope } from "lucide-react";
 
 const Hero = () => {
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-linear-to-b from-black via-zinc-950 to-black" />
         {[...Array(100)].map((_, i) => (
@@ -32,7 +32,7 @@ const Hero = () => {
           </div>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extralight mb-6 tracking-wider">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extralight mb-6 tracking-wider">
           <span className="text-white/95 block mb-2">ADVANCED</span>
           <span className="text-white/60">HEALTHCARE SUPPORT</span>
         </h1>
@@ -59,21 +59,27 @@ const Hero = () => {
           </a>
         </div>
 
-        <div className="grid grid-cols-3 gap-8 mt-24 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-24 max-w-3xl mx-auto">
           <div className="text-center">
-            <div className="text-3xl font-light text-white/90 mb-2">24/7</div>
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
+              24/7
+            </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
               Support
             </div>
           </div>
-          <div className="text-center border-x border-white/10">
-            <div className="text-3xl font-light text-white/90 mb-2">500+</div>
+          <div className="text-center sm:border-x border-white/10">
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
+              500+
+            </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
               Volunteers
             </div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-light text-white/90 mb-2">10K+</div>
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
+              10K+
+            </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
               Patients
             </div>
@@ -98,7 +104,7 @@ const Hero = () => {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-red-500 text-white">
+    <div className="min-h-screen w-full bg-red-500 text-white">
       <Hero />
     </div>
   );

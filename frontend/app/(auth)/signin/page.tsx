@@ -17,50 +17,48 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+      );
 
-  try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
-      {
-        email: formData.email,
-        password: formData.password,
+      const userData = {
+        id: response.data.user.id,
+        name: response.data.user.name,
+        email: response.data.user.email,
+        role: response.data.user.role,
+        phoneno: response.data.user.phoneno,
+        age: response.data.user.age,
+      };
+
+      sessionStorage.setItem("user", JSON.stringify(userData));
+      sessionStorage.setItem("token", response.data.token);
+
+      if (response.data.user.role === "VOLUNTEER") {
+        window.location.href = "/volunteer/dashboard";
+      } else if (response.data.user.role === "PATIENT") {
+        window.location.href = "/patient/dashboard";
       }
-    );
-
-    const userData = {
-      id: response.data.user.id,
-      name: response.data.user.name,
-      email: response.data.user.email,
-      role: response.data.user.role,
-      phoneno: response.data.user.phoneno,
-      age: response.data.user.age,
-    };
-
-    sessionStorage.setItem('user', JSON.stringify(userData));
-    sessionStorage.setItem('token', response.data.token);
-
-    if (response.data.user.role === "VOLUNTEER") {
-  window.location.href = "/volunteer/dashboard";
-} else if (response.data.user.role === "PATIENT") {
-  window.location.href = "/patient/dashboard";
-}
-
-  } catch (err: any) {
-    setError(
-      err.response?.data?.msg || "Failed to sign in. Please try again."
-    );
-    console.error("Sign in error:", err);
-    setLoading(false);
-  }
-};
+    } catch (err: any) {
+      setError(
+        err.response?.data?.msg || "Failed to sign in. Please try again.",
+      );
+      console.error("Sign in error:", err);
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen w-full bg-black text-white relative overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-linear-to-br from-black via-zinc-950 to-black" />
         {[...Array(80)].map((_, i) => (
@@ -94,7 +92,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </span>
       </Link>
 
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-16">
+      <div className="relative z-10 w-full flex items-center justify-center min-h-screen px-4 py-16">
         <div className="w-full max-w-md">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extralight tracking-wider text-white/95 mb-4">

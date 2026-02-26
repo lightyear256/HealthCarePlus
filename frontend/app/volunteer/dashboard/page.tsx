@@ -54,16 +54,24 @@ export default function VolunteerDashboard() {
   const router = useRouter();
   const { logout } = useAuth();
   const [user, setUser] = useState<any>(null);
-  const [token, setToken] = useState<string | null>(null);  
-  const [availableRequests, setAvailableRequests] = useState<PatientRequest[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const [availableRequests, setAvailableRequests] = useState<PatientRequest[]>(
+    [],
+  );
   const [myRequests, setMyRequests] = useState<PatientRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"available" | "assigned">("available");
-  const [selectedRequest, setSelectedRequest] = useState<PatientRequest | null>(null);
+  const [activeTab, setActiveTab] = useState<"available" | "assigned">(
+    "available",
+  );
+  const [selectedRequest, setSelectedRequest] = useState<PatientRequest | null>(
+    null,
+  );
   const [showModal, setShowModal] = useState(false);
-  
+
   const [showChat, setShowChat] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null,
+  );
   const [selectedRequestTitle, setSelectedRequestTitle] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -80,49 +88,47 @@ export default function VolunteerDashboard() {
     scrollToBottom();
   }, [messages]);
 
-useEffect(() => {
-    const storedUser = sessionStorage.getItem('user');
-    const storedToken = sessionStorage.getItem('token');
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
     }
   }, []);
 
+  useEffect(() => {
+    const checkAuth = () => {
+      const storedUser = sessionStorage.getItem("user");
+      const storedToken = sessionStorage.getItem("token");
 
- useEffect(() => {
-  const checkAuth = () => {
-    const storedUser = sessionStorage.getItem('user');
-    const storedToken = sessionStorage.getItem('token');
-    
-    if (!storedUser || !storedToken) {
-      router.replace('/signin')
-      return;
-    }
-
-    try {
-      const userData = JSON.parse(storedUser);
-      if (userData.role !== 'VOLUNTEER') {
-       router.replace('/signin')
+      if (!storedUser || !storedToken) {
+        router.replace("/signin");
         return;
       }
-      
-     setUser(userData);
-    setToken(storedToken);
-    } catch (error) {
-      router.replace('/signin')
-    }
-  };
 
-  checkAuth();
-}, []);
-useEffect(() => {
-  if (!token) return;
+      try {
+        const userData = JSON.parse(storedUser);
+        if (userData.role !== "VOLUNTEER") {
+          router.replace("/signin");
+          return;
+        }
 
-  fetchRequests();
-  fetchUnreadCount();
-}, [token]);
+        setUser(userData);
+        setToken(storedToken);
+      } catch (error) {
+        router.replace("/signin");
+      }
+    };
 
+    checkAuth();
+  }, []);
+  useEffect(() => {
+    if (!token) return;
+
+    fetchRequests();
+    fetchUnreadCount();
+  }, [token]);
 
   useEffect(() => {
     if (showChat && selectedRequestId) {
@@ -150,14 +156,11 @@ useEffect(() => {
           `${process.env.NEXT_PUBLIC_API_URL}/volunteer/get_all_patient`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         ),
-        axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/volunteer/my_patients`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/volunteer/my_patients`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
       setAvailableRequests(availableRes.data.data || []);
       setMyRequests(assignedRes.data.data || []);
@@ -178,7 +181,7 @@ useEffect(() => {
         `${process.env.NEXT_PUBLIC_API_URL}/chat/${selectedRequestId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setMessages(response.data.data || []);
       fetchUnreadCount();
@@ -195,7 +198,7 @@ useEffect(() => {
         `${process.env.NEXT_PUBLIC_API_URL}/chat/unread/count`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setUnreadCount(response.data.data?.unreadCount || 0);
     } catch (err) {
@@ -219,9 +222,9 @@ useEffect(() => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
-      
+
       setNewMessage("");
       await fetchMessages();
     } catch (err: any) {
@@ -253,7 +256,7 @@ useEffect(() => {
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setShowModal(false);
       setSelectedRequest(null);
@@ -262,8 +265,6 @@ useEffect(() => {
       console.error("Failed to take request:", err);
     }
   };
-
-  
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -301,33 +302,35 @@ useEffect(() => {
     showActions?: boolean;
   }) => (
     <div className="bg-zinc-950/50 backdrop-blur-xl border border-white/10 rounded p-6 hover:border-white/20 transition-all">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1 pr-4">
-          <h3 className="text-lg font-light text-white/90 mb-2 tracking-wide">
+      <div className="flex flex-col sm:flex-row items-start justify-between mb-4">
+        <div className="flex-1 pr-0 sm:pr-4">
+          <h3 className="text-lg font-light text-white/90 mb-2 tracking-wide break-words">
             {request.title}
           </h3>
           {request.autoSummary ? (
             <div className="mb-2">
-              <p className="text-sm text-blue-400/80 leading-relaxed line-clamp-2 mb-1">
+              <p className="text-sm text-blue-400/80 leading-relaxed line-clamp-2 mb-1 break-words">
                 {request.autoSummary.content}
               </p>
-              <span className="text-xs text-blue-400/50 italic">AI Summary</span>
+              <span className="text-xs text-blue-400/50 italic">
+                AI Summary
+              </span>
             </div>
           ) : (
-            <p className="text-sm text-white/50 leading-relaxed line-clamp-2">
+            <p className="text-sm text-white/50 leading-relaxed line-clamp-2 break-words">
               {request.issue}
             </p>
           )}
         </div>
         <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded border text-xs tracking-wider ${getStatusColor(request.status)}`}
+          className={`mt-2 sm:mt-0 flex items-center gap-2 px-3 py-1.5 rounded border text-xs tracking-wider ${getStatusColor(request.status)}`}
         >
           {getStatusIcon(request.status)}
-          <span>{request.status.replace('_', ' ')}</span>
+          <span>{request.status.replace("_", " ")}</span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-white/5 gap-4">
         <div className="flex items-center gap-4 text-xs text-white/40">
           <div className="flex items-center gap-2">
             <User className="w-3 h-3" />
@@ -338,7 +341,7 @@ useEffect(() => {
           </span>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={() => {
               setSelectedRequest(request);
@@ -358,7 +361,6 @@ useEffect(() => {
                 <MessageCircle className="w-4 h-4" />
                 CHAT
               </button>
-             
             </>
           )}
         </div>
@@ -366,10 +368,8 @@ useEffect(() => {
     </div>
   );
 
-  
-
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen w-full bg-black text-white">
       <div className="fixed inset-0 bg-linear-to-br from-black via-zinc-950 to-black">
         {[...Array(50)].map((_, i) => (
           <div
@@ -387,10 +387,9 @@ useEffect(() => {
         ))}
       </div>
 
-     
       <div className="pt-25 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl font-extralight tracking-wider text-white/95 mb-2">
+          <h1 className="text-3xl sm:text-4xl font-extralight tracking-wider text-white/95 mb-2">
             VOLUNTEER DASHBOARD
           </h1>
           <div className="w-24 h-px bg-linear-to-r from-white/30 to-transparent mb-6" />
@@ -401,7 +400,7 @@ useEffect(() => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-zinc-950/50 backdrop-blur-xl border border-white/10 rounded-sm p-6">
-            <div className="text-3xl font-light text-white/90 mb-2">
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
               {availableRequests.length}
             </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
@@ -409,7 +408,7 @@ useEffect(() => {
             </div>
           </div>
           <div className="bg-zinc-950/50 backdrop-blur-xl border border-white/10 rounded-sm p-6">
-            <div className="text-3xl font-light text-white/90 mb-2">
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
               {myRequests.filter((r) => r.status === "IN_PROGRESS").length}
             </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
@@ -417,7 +416,7 @@ useEffect(() => {
             </div>
           </div>
           <div className="bg-zinc-950/50 backdrop-blur-xl border border-white/10 rounded-sm p-6">
-            <div className="text-3xl font-light text-white/90 mb-2">
+            <div className="text-2xl md:text-3xl font-light text-white/90 mb-2">
               {myRequests.filter((r) => r.status === "RESOLVED").length}
             </div>
             <div className="text-xs text-white/40 tracking-widest uppercase">
@@ -426,7 +425,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="flex gap-4 mb-8 border-b border-white/10">
+        <div className="flex flex-wrap gap-4 mb-8 border-b border-white/10">
           <button
             onClick={() => setActiveTab("available")}
             className={`px-6 py-3 text-sm tracking-wider uppercase transition-all ${
@@ -496,7 +495,7 @@ useEffect(() => {
 
       {showChat && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-sm w-full max-w-2xl h-150 flex flex-col">
+          <div className="bg-zinc-900 border border-white/10 rounded-sm w-full max-w-full sm:max-w-2xl h-auto sm:h-150 flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
@@ -505,7 +504,9 @@ useEffect(() => {
                     Chat with Patient
                   </h2>
                 </div>
-                <p className="text-xs text-white/50 ml-8">{selectedRequestTitle}</p>
+                <p className="text-xs text-white/50 ml-8">
+                  {selectedRequestTitle}
+                </p>
               </div>
               <button
                 onClick={closeChat}
@@ -531,7 +532,7 @@ useEffect(() => {
                       className={`flex ${message.senderRole === "VOLUNTEER" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-sm p-4 ${
+                        className={`max-w-full sm:max-w-[70%] rounded-sm p-4 ${
                           message.senderRole === "VOLUNTEER"
                             ? "bg-white/10 border border-white/20"
                             : "bg-blue-500/10 border border-blue-500/20"
@@ -545,13 +546,13 @@ useEffect(() => {
                             ({message.senderRole})
                           </span>
                         </div>
-                        <p className="text-sm text-white/90 leading-relaxed mb-2">
+                        <p className="text-sm text-white/90 leading-relaxed mb-2 break-words">
                           {message.content}
                         </p>
                         <span className="text-xs text-white/40">
                           {new Date(message.createdAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </span>
                       </div>
@@ -562,8 +563,11 @@ useEffect(() => {
               )}
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-6 border-t border-white/10">
-              <div className="flex gap-3">
+            <form
+              onSubmit={handleSendMessage}
+              className="p-6 border-t border-white/10"
+            >
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   value={newMessage}
@@ -589,7 +593,7 @@ useEffect(() => {
 
       {showModal && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-sm p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-zinc-900 border border-white/10 rounded-sm p-8 max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-6">
               <h2 className="text-2xl font-light tracking-widest text-white/90 uppercase">
                 Request Details
@@ -598,7 +602,7 @@ useEffect(() => {
                 className={`flex items-center gap-2 px-3 py-1 rounded-sm border text-xs tracking-wider ${getStatusColor(selectedRequest.status)}`}
               >
                 {getStatusIcon(selectedRequest.status)}
-                {selectedRequest.status.replace('_', ' ')}
+                {selectedRequest.status.replace("_", " ")}
               </div>
             </div>
 
@@ -632,7 +636,7 @@ useEffect(() => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs text-white/50 mb-2 tracking-wider uppercase">
                     Patient Name
@@ -647,7 +651,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs text-white/50 mb-2 tracking-wider uppercase">
                     Age
@@ -667,13 +671,16 @@ useEffect(() => {
                   Created Date
                 </label>
                 <p className="text-white/90">
-                  {new Date(selectedRequest.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {new Date(selectedRequest.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
                 </p>
               </div>
 
